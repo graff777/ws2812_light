@@ -1,0 +1,162 @@
+#include <Adafruit_NeoPixel.h>
+#ifdef __AVR__
+  #include <avr/power.h>
+#endif
+#define PIN 6
+Adafruit_NeoPixel strip = Adafruit_NeoPixel(58, PIN, NEO_GRB + NEO_KHZ800);
+int value=0;
+int yark=100;
+int reg=1;
+int romantik=0;
+int r=0;
+int g=0;
+int b=0;
+int m;
+int jh=0;
+int regim;
+void setup() 
+{
+ pinMode(2,INPUT);  //romantic
+ pinMode(5,INPUT);  //brightless
+ pinMode(8,INPUT);  //rgb
+ //pinMode(10,INPUT); //strip led
+ pinMode(11,INPUT); //power
+ 
+
+ strip.begin();
+ strip.show();
+}
+void(* resetFunc) (void) = 0;
+void loop() 
+{
+ //---------питание кнопок-------------
+ 
+ 
+ //------------------------------------
+int power=digitalRead(11);
+int dimmer=digitalRead(5);
+regim=digitalRead(8);
+int romantik=digitalRead(2);
+if(regim==1)
+{
+reg=reg+1;
+if(reg==7)
+{
+reg=1;
+}
+}
+switch(reg)
+{
+case 1:
+r=255;g=255;b=255;
+break;
+case 2:
+r=255;g=0;b=0;
+break;
+case 3:
+r=255;g=255;b=0;  //желтый
+break;
+case 4:
+r=0;g=128;b=0;    //зеленый
+break;
+case 5:
+r=0;g=0;b=255;    //голубой
+break;
+case 6:
+r=75;g=0;b=130;   //синий
+break;
+case 7:
+r=238;g=130;b=238;//фиолетовый
+break;
+}
+if((romantik==1)&&(value%2>0))
+{
+  while(jh==0)
+  {
+rainbowCycle(30);
+  }
+}
+if(dimmer==1)
+{
+yark=yark+10;
+if(yark==220)
+{
+  yark=10;
+}
+}
+if(power==1)
+{
+value=value+1;
+}
+if(value%2>0)
+{
+for(uint16_t i=0; i<strip.numPixels(); i++) 
+{strip.setBrightness(yark);
+strip.setPixelColor(i, strip.Color(r,g,b));
+strip.show();
+delay(3);
+}
+}
+if(value%2==0)
+{
+for(uint16_t i=6; i<strip.numPixels()-6; i++) 
+{
+strip.setPixelColor(i, strip.Color(0,0,0));
+strip.show();
+delay(3);
+}
+//rainbowCycle2(30);
+light();
+}
+}
+void rainbowCycle(uint8_t wait) {
+uint16_t i, j;
+for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+for(i=0; i< strip.numPixels(); i++) {
+strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+if((digitalRead(11)==1)&&(value%2>0))
+{
+resetFunc();
+}
+}
+strip.show();
+delay(wait);
+}
+}
+void light()
+{
+  for(int i=0;i<6;i++)
+  {
+  strip.setPixelColor(i, strip.Color(0,0,255));
+  delay(450);
+  }
+}
+void rainbowCycle2(uint8_t wait) {
+uint16_t i, j;
+for(j=0; j<256*5; j++) { // 5 cycles of all colors on wheel
+for(i=0; i<6; i++) {
+strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+if(digitalRead(11)==1)
+{
+resetFunc();
+}
+}
+for(i=60; i>53; i--) {
+strip.setPixelColor(i, Wheel(((i * 256 / strip.numPixels()) + j) & 255));
+} 
+strip.show();
+delay(wait);
+}
+}
+uint32_t Wheel(byte WheelPos) {
+WheelPos = 255 - WheelPos;
+if(WheelPos < 85) {
+return strip.Color(255 - WheelPos * 3, 0, WheelPos * 3);
+}
+if(WheelPos < 170) {
+WheelPos -= 85;
+return strip.Color(0, WheelPos * 3, 255 - WheelPos * 3);
+}
+WheelPos -= 170;
+return strip.Color(WheelPos * 3, 255 - WheelPos * 3, 0);
+}
